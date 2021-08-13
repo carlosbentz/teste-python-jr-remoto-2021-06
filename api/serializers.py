@@ -3,7 +3,6 @@ import requests
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
-from ipdb import set_trace
 
 from .models import PackageRelease, Project
 

@@ -2,7 +2,6 @@ from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import requests
-from ipdb import set_trace
 from datetime import datetime
 
 from .serializers import ProjectSerializer
@@ -24,7 +23,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # TODO
         # - Processar os pacotes recebidos
         # - Persistir informações no banco
-        set_trace()
         packages = validated_data.data.pop("packages")
         for package in packages:
             package_name = package.get("name")
