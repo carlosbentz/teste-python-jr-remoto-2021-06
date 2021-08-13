@@ -10,7 +10,6 @@ from .models import PackageRelease, Project
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
-    # lookup_field = "name"
     serializer_class = ProjectSerializer
 
     def retrieve(self, request, pk=None):
@@ -19,58 +18,65 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         return Response(serializer_class.data)
 
-    def create(self, validated_data):
-        # TODO
-        # - Processar os pacotes recebidos
-        # - Persistir informações no banco
-        packages = validated_data.data.pop("packages")
-        for package in packages:
-            package_name = package.get("name")
-            package_version = package.get("version")
-            r = requests.get(f'https://pypi.org/pypi/{package_name}/json')
+    def destroy(self, request, pk=None):
+        project = get_object_or_404(self.queryset, name__iexact=pk)   
+        project.delete()
 
-            if r.status_code != 200:
-                return Response(
-                    {"error": "One or more packages don't exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-            releases = r.json()["releases"]
 
-            if not package_version:
-                package_datas = []
-                for key, value in releases.items():
-                    if value:
-                        date = datetime.strptime(
-                            value[0]["upload_time"], "%Y-%m-%dT%H:%M:%S"
-                        )
-                        package_datas.append(date)
+    # def create(self, validated_data):
+    #     # TODO
+    #     # - Processar os pacotes recebidos
+    #     # - Persistir informações no banco
+    #     packages = validated_data.data.pop("packages")
+    #     for package in packages:
+    #         package_name = package.get("name")
+    #         package_version = package.get("version")
+    #         r = requests.get(f'https://pypi.org/pypi/{package_name}/json')
 
-                        if date == max(package_datas):
-                            package_version = key
+    #         if r.status_code != 200:
+    #             return Response(
+    #                 {"error": "One or more packages don't exist"},
+    #                 status=status.HTTP_400_BAD_REQUEST
+    #                 )
 
-                if not package_datas:
-                    package_version = "1.0"
+    #         releases = r.json()["releases"]
 
-            else:
-                if not releases.get(package_version):
-                    return Response(
-                        {"error": "One or more packages don't exist"},
-                        status=status.HTTP_400_BAD_REQUEST
-                        )
+    #         if not package_version:
+    #             package_datas = []
+    #             for key, value in releases.items():
+    #                 if value:
+    #                     date = datetime.strptime(
+    #                         value[0]["upload_time"], "%Y-%m-%dT%H:%M:%S"
+    #                     )
+    #                     package_datas.append(date)
 
-            package["version"] = package_version
+    #                     if date == max(package_datas):
+    #                         package_version = key
 
-        project = Project.objects.create(**validated_data.data)
+    #             if not package_datas:
+    #                 package_version = "1.0"
 
-        for package in packages:
+    #         else:
+    #             if not releases.get(package_version):
+    #                 return Response(
+    #                     {"error": "One or more packages don't exist"},
+    #                     status=status.HTTP_400_BAD_REQUEST
+    #                     )
 
-            package = PackageRelease.objects.create(
-                **package,
-                project_id=project.id
-            )
+    #         package["version"] = package_version
 
-            project.packages.add(package)
+    #     project = Project.objects.create(**validated_data.data)
 
-        project = ProjectSerializer(project)
-        return Response(project.data, status=status.HTTP_201_CREATED)
+    #     for package in packages:
+
+    #         package = PackageRelease.objects.create(
+    #             **package,
+    #             project_id=project.id
+    #         )
+
+    #         project.packages.add(package)
+
+    #     project = ProjectSerializer(project)
+    #     return Response(project.data, status=status.HTTP_201_CREATED)
