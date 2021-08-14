@@ -1,9 +1,7 @@
 from rest_framework import serializers
 import requests
-from rest_framework.response import Response
-from rest_framework import status
 from datetime import datetime
-from rest_framework.exceptions import bad_request
+
 from .models import PackageRelease, Project
 
 
@@ -31,7 +29,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
             if r.status_code != 200:
                 raise serializers.ValidationError(
-                    {"error": "One or more packages don't exist"}
+                    {"error": "One or more packages doesn't exist"}
                 )
 
             releases = r.json()["releases"]
@@ -54,7 +52,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             else:
                 if not releases.get(package_version):
                     raise serializers.ValidationError(
-                        {"error": "One or more packages don't exist"}
+                        {"error": "One or more packages doesn't exist"}
                     )
 
             package["version"] = package_version
