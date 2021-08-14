@@ -17,7 +17,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(serializer_class.data)
 
     def destroy(self, request, pk=None):
-        project = get_object_or_404(self.queryset, name__iexact=pk)   
+        project = get_object_or_404(self.queryset, name__iexact=pk)
         project.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
