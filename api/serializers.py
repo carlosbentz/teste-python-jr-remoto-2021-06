@@ -22,6 +22,11 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         packages = validated_data.pop("packages")
 
+        if not packages:
+            raise serializers.ValidationError(
+                    {"error": "You need to provide at least one package"}
+            )
+
         for package in packages:
             package_name = package.get("name")
             package_version = package.get("version")
